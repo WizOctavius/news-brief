@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Briefing Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            min-height: 100vh;
+            
+            color: #D1D5DB;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .main-card {
+            /* UPDATED: Dark card background */
+            background: #1F2937;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #374151;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            /* UPDATED: Lighter text color for labels */
+            color: #9CA3AF;
+            font-size: 1.1rem;
+        }
+
+        .textarea-container {
+            position: relative;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 20px;
+            /* UPDATED: Dark input styles */
+            background: #111827;
+            border: 2px solid #374151;
+            color: #D1D5DB;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        select {
+            padding: 15px; /* Adjust padding for select */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            /* UPDATED: Teal accent color on focus */
+            border-color: #2DD4BF;
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
+        }
+
+        .sample-feeds {
+            margin-top: 15px;
+            padding: 15px;
+            /* UPDATED: Darker background for sample box */
+            background: #111827;
+            border-radius: 8px;
+            /* UPDATED: Teal accent border */
+            border-left: 4px solid #2DD4BF;
+        }
+
+        .sample-feeds h4 {
+            /* UPDATED: Teal accent color */
+            color: #2DD4BF;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .sample-feeds p {
+            font-size: 0.85rem;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            /* UPDATED: Darker slider track */
+            background: #374151;
+            outline: none;
+            border-radius: 5px;
+            opacity: 0.8;
+            transition: opacity .2s;
+            margin-top: 10px;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            /* UPDATED: Teal slider thumb */
+            background: #2DD4BF;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            background: #2DD4BF;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            /* UPDATED: Teal gradient for primary button */
+            background: linear-gradient(45deg, #2DD4BF, #14B8A6);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(45, 212, 191, 0.2);
+        }
+
+        .btn-secondary {
+            /* UPDATED: Dark secondary button */
+            background: #374151;
+            color: #D1D5DB;
+            border: 2px solid #4B5563;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .loading, .result {
+            display: none;
+            background: #111827;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid #374151;
+        }
+
+        .loading.show, .result.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #374151;
+            /* UPDATED: Teal spinner color */
+            border-top: 4px solid #2DD4BF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-header h3 {
+            /* UPDATED: Success green color */
+            color: #10B981;
+            margin-bottom: 10px;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .stat {
+            /* UPDATED: Darker background for stats */
+            background: #1F2937;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            /* UPDATED: Teal accent color */
+            color: #2DD4BF;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #9CA3AF;
+            margin-top: 5px;
+        }
+
+        .audio-player, .transcript {
+            margin-top: 20px;
+            /* UPDATED: Dark card background */
+            background: #1F2937;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #374151;
+        }
+
+        audio {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .transcript h4 {
+            /* UPDATED: Teal accent color */
+            color: #2DD4BF;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transcript-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            /* UPDATED: Darker background for transcript text */
+            background: #111827;
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .error {
+            display: none;
+            /* UPDATED: Dark theme error colors */
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #F87171;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9CA3AF;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .main-card {
+                padding: 25px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .result-stats {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-microphone-alt"></i> AI News Briefing</h1>
+            <p>Transform your favorite RSS feeds into personalized audio news briefings</p>
+        </div>
+
+        <div class="main-card">
+            <form id="briefingForm">
+                <div class="form-group">
+                    <label for="feedUrls">
+                        <i class="fas fa-rss"></i> RSS Feed URLs
+                    </label>
+                    <div class="textarea-container">
+                        <textarea 
+                            id="feedUrls" 
+                            name="feedUrls"
+                            placeholder="Paste your RSS feed URLs here, one per line...&#10;&#10;Example:&#10;https://feeds.reuters.com/reuters/topNews&#10;https://rss.nytimes.com/services/xml/rss/nyt/World.xml&#10;https://feeds.feedburner.com/TechCrunch"
+                        ></textarea>
+                    </div>
+                    
+                    <div class="sample-feeds">
+                        <h4><i class="fas fa-lightbulb"></i> Popular RSS Feeds</h4>
+                        <p><strong>News:</strong> https://feeds.reuters.com/reuters/topNews</p>
+                        <p><strong>World:</strong> https://rss.nytimes.com/services/xml/rss/nyt/World.xml</p>
+                        <p><strong>Tech:</strong> https://feeds.feedburner.com/TechCrunch</p>
+                        <p><strong>Business:</strong> https://feeds.reuters.com/reuters/businessNews</p>
+                    </div>
+                </div>
+
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label for="voiceSelect">
+                            <i class="fas fa-user"></i> Voice Selection
+                        </label>
+                        <select id="voiceSelect" name="voiceSelect">
+                            <option value="en-US-natalie">Natalie (US Female)</option>
+                            <option value="en-US-wayne">Wayne (US Male)</option>
+                            <option value="en-UK-hazel">Hazel (UK Female)</option>
+                            <option value="en-UK-nolan">Nolan (UK Male)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formatSelect">
+                            <i class="fas fa-file-audio"></i> Audio Format
+                        </label>
+                        <select id="formatSelect" name="formatSelect">
+                            <option value="MP3">MP3 (Recommended)</option>
+                            <option value="WAV">WAV (High Quality)</option>
+                            <option value="FLAC">FLAC (Lossless)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxArticles">
+                            <i class="fas fa-newspaper"></i> Articles per Feed (<span id="maxArticlesValue">3</span>)
+                        </label>
+                        <input type="range" id="maxArticles" class="slider" min="1" max="5" value="3">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary" id="generateBtn">
+                        <i class="fas fa-play"></i>
+                        Generate Briefing
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                </div>
+            </form>
+
+            <div class="loading" id="loadingDiv">
+                <div class="spinner"></div>
+                <h3>Generating Your News Briefing...</h3>
+                <p>Fetching articles, formatting content, and creating audio. This may take a moment.</p>
+            </div>
+
+            <div class="error" id="errorDiv">
+                <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                <p id="errorMessage"></p>
+            </div>
+
+            <div class="result" id="resultDiv">
+                <div class="result-header">
+                    <h3><i class="fas fa-check-circle"></i> Briefing Generated Successfully!</h3>
+                    <p>Your personalized news briefing is ready to play</p>
+                </div>
+
+                <div class="result-stats" id="resultStats">
+                    </div>
+
+                <div class="audio-player">
+                    <h4><i class="fas fa-headphones"></i> Audio Briefing</h4>
+                    <audio controls id="audioPlayer" preload="metadata">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <p><small>Right-click and "Save As" to download the audio file</small></p>
+                </div>
+
+                <div class="transcript">
+                    <h4><i class="fas fa-file-text"></i> Briefing Transcript</h4>
+                    <div class="transcript-content" id="transcriptContent">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 AI News Briefing Generator | Powered by RSS feeds and Murf AI</p>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
