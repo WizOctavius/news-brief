@@ -2,6 +2,18 @@
 
 Transform your favorite RSS feeds into personalized, professional audio news briefings with background music and customizable voices.
 
+## 📸 Screenshots
+
+### Main Interface
+
+![Main Interface](screenshots/screencapture-localhost-8000-2025-08-31-15_41_07.jpg)
+*Clean, dark-themed interface for configuring news briefing*
+
+### Generated Briefing
+
+![Generated Briefing](screenshots/screencapture-localhost-8000-2025-08-31-16_56_09.jpg)
+*Audio player and transcript view after successful generation*
+
 ## ✨ Features
 
 - **RSS Feed Integration**: Support for multiple RSS feeds from popular news sources
